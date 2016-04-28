@@ -1376,17 +1376,47 @@
             <subsystem xmlns="urn:jboss:domain:configadmin:1.0"/>
             <subsystem xmlns="urn:jboss:domain:datasources:1.2">
                 <datasources>
-                    <datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS" enabled="true" use-java-context="true">
-                        <connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connection-url>
-                        <driver>h2</driver>
+                    <datasource jta="true" jndi-name="java:jboss/datasources/DemoDS" pool-name="DemoDS" enabled="true" use-ccm="false" statistics-enabled="true">
+                        <connection-url>jdbc:mysql://mysql01.arch.redhat.dev:3306/demo</connection-url>
+                        <connection-property name="verifyServerCertificate">
+                            false
+                        </connection-property>
+                        <connection-property name="jdbcCompliantTruncation">
+                            false
+                        </connection-property>
+                        <connection-property name="zeroDateTimeBehavio">
+                            convertToNull
+                        </connection-property>
+                        <connection-property name="useSSL">
+                            false
+                        </connection-property>
+                        <driver>mysql</driver>
+                        <transaction-isolation>TRANSACTION_READ_COMMITTED</transaction-isolation>
+                        <pool>
+                            <min-pool-size>0</min-pool-size>
+                            <max-pool-size>100</max-pool-size>
+                            <prefill>false</prefill>
+                            <flush-strategy>IdleConnections</flush-strategy>
+                        </pool>
                         <security>
-                            <user-name>sa</user-name>
-                            <password>sa</password>
+                            <user-name>demo_user</user-name>
+                            <password>DemoUser.01</password>
                         </security>
+                        <validation>
+                            <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker"/>
+                            <validate-on-match>false</validate-on-match>
+                            <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter"/>
+                        </validation>
+                        <timeout>
+                            <idle-timeout-minutes>1</idle-timeout-minutes>
+                        </timeout>
+                        <statement>
+                            <share-prepared-statements>false</share-prepared-statements>
+                        </statement>
                     </datasource>
                     <drivers>
-                        <driver name="h2" module="com.h2database.h2">
-                            <xa-datasource-class>org.h2.jdbcx.JdbcDataSource</xa-datasource-class>
+                        <driver name="mysql" module="com.mysql.jdbc">
+                            <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
                         </driver>
                     </drivers>
                 </datasources>
@@ -1753,24 +1783,6 @@
         </socket-binding-group>
     </socket-binding-groups>
 
-    <deployments>
-        <deployment name="sender_01" runtime-name="sender.ear">
-            <content sha1="132030850d3459f3dabfbbd0c3d366e8faf325c4"/>
-        </deployment>
-        <deployment name="activemq-rar.rar" runtime-name="activemq-rar.rar">
-            <content sha1="93bd76dce5eb352c86229fcd0c44da1db68fa456"/>
-        </deployment>
-        <deployment name="history_01" runtime-name="history.ear">
-            <content sha1="c131c76f7a2a6524959c33f07f2bfa48468345f6"/>
-        </deployment>
-        <deployment name="reader_01" runtime-name="reader.ear">
-            <content sha1="7cda106c13b91a3599054ac335e14cc0e13feefc"/>
-        </deployment>
-        <deployment name="consumer_01" runtime-name="consumer.ear">
-            <content sha1="6ce79fb47fbdfcf0524cb126df8ce508e91c079e"/>
-        </deployment>
-    </deployments>
-
     <server-groups>
         <server-group name="DEMO_sg01" profile="DEMO">
             <jvm name="JVM_GC">
@@ -1789,13 +1801,6 @@
                 </jvm-options>
             </jvm>
             <socket-binding-group ref="ha-sockets"/>
-            <deployments>
-                <deployment name="activemq-rar.rar" runtime-name="activemq-rar.rar"/>
-                <deployment name="sender_01" runtime-name="sender.ear"/>
-                <deployment name="history_01" runtime-name="history.ear"/>
-                <deployment name="reader_01" runtime-name="reader.ear"/>
-                <deployment name="consumer_01" runtime-name="consumer.ear"/>
-            </deployments>
             <system-properties>
                 <property name="LBGroup" value="DEMOLBGroup01" boot-time="true"/>
             </system-properties>
@@ -1815,9 +1820,6 @@
                 </jvm-options>
             </jvm>
             <socket-binding-group ref="ha-sockets"/>
-            <deployments>
-                <deployment name="activemq-rar.rar" runtime-name="activemq-rar.rar"/>
-            </deployments>
             <system-properties>
                 <property name="LBGroup" value="DEMOLBGroup02" boot-time="true"/>
             </system-properties>
