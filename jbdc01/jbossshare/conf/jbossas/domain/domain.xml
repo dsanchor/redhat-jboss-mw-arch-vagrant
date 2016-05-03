@@ -1400,7 +1400,7 @@
                         </pool>
                         <security>
                             <user-name>demo_user</user-name>
-                            <password>DemoUser.01</password>
+                            <password>Pa$$word.01</password>
                         </security>
                         <validation>
                             <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker"/>

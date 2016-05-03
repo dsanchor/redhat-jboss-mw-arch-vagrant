@@ -75,16 +75,8 @@ Vagrant.configure(2) do |config|
   #   sudo apt-get update
   #   sudo apt-get install -y apache2
   # SHELL
-  #config.vm.provision "shell",
-  #  inline: "sudo sed -i 's/\(127\.0\.0\.1\)\s*.*\s*\(localhost\)\s/\1\t\2 /' /etc/hosts",
-  #  run: "always"
-  #  config.vm.provision "shell",
-  #    inline: "echo BEFORE: \"$(cat /etc/hosts)\";sudo sed -i 's/\(127\.0\.0\.1\)\s*.*\s*\(localhost\)\s/\1\t\2 /' /etc/hosts;echo AFTER: \"$(cat /etc/hosts)\"",
-  #    run: "always"  
+
   config.vm.provision "shell", path: "hostname.sh", run: "always"
-
-
-
 
   #####################################################################
   ###                         Virtual Machines                      ###
