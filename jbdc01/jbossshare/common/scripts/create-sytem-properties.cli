@@ -2,9 +2,6 @@
 batch
 
 /system-property=jboss.mod_cluster.jvmRoute:add(value=${jboss.node.name})
-/system-property=jboss.loadbalancer.port:add(value=80)
-/system-property=jboss.loadbalancer.host:add(value=jblb01.arch.redhat.dev)
-/system-property=jboss.datagrid.topology:add(value=jbdg01.arch.redhat.dev:11222;jbdg02.arch.redhat.dev:11222;jbdg03.arch.redhat.dev:11222;jbdg04.arch.redhat.dev:11222)
 
 echo "Common system properties created"
 
