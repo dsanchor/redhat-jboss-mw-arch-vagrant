@@ -8,25 +8,25 @@ Host manager plugin => https://github.com/devopsgroup-io/vagrant-hostmanager
 
 Landrush plugin => https://github.com/vagrant-landrush/landrush
 
-** Linux users: ** follow next steps in order to make landrush work:
+**Linux users:** follow next steps in order to make landrush work:
 
-Add following to /etc/dnsmasq.conf
+1. Add following to /etc/dnsmasq.conf
 
-listen-address=127.0.0.1
+  listen-address=127.0.0.1
 
-Create /etc/dnsmasq.d/vagrant-landrush file with following content
+2. Create /etc/dnsmasq.d/vagrant-landrush file with following content
 
-server=/.arch.redhat.dev/127.0.0.1#10053
+  server=/.arch.redhat.dev/127.0.0.1#10053
 
-Restart dnsmasq service and check status (Should be active)
+3. Restart dnsmasq service and check status (Should be active)
 
-sudo systemctl start dnsmasq.service 
+  sudo systemctl start dnsmasq.service 
 
-sudo systemctl status dnsmasq.service
+  sudo systemctl status dnsmasq.service
 
-Include the following at first place in /etc/resolve.conf
+4. Include the following at first place in /etc/resolve.conf
 
-nameserver 127.0.0.1
+  nameserver 127.0.0.1
 
 ###Demo apps
 
