@@ -1,0 +1,23 @@
+# Create server groups demosg01 and demosg02
+
+batch
+
+#Remove default groups
+/server-group=main-server-group:remove
+/server-group=other-server-group:remove
+echo "Default server groups removed"
+ 
+# Create server group demosg01 and related configuration
+/server-group=demosg01:add(profile=demo,socket-binding-group=ha-sockets,jvm=default)
+/server-group=demosg01/system-property=loadbalancer.group:add(value=demo-lb-group01)
+# TODO include memory options and so on if needed
+
+# Create server group demosg02 and related configuration
+/server-group=demosg02:add(profile=demo,socket-binding-group=ha-sockets,jvm=default)
+/server-group=demosg02/system-property=loadbalancer.group:add(value=demo-lb-group02)
+# TODO include memory options and so on if needed
+
+echo "Server groups demosg01 and demosg02 created"
+
+# Execute batch
+run-batch

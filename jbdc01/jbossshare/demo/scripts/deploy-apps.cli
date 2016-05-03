@@ -1,0 +1,17 @@
+# Deploy a list of apps in all or given server groups
+
+batch
+ 
+# Add activemq to all server groups in domain
+deploy /jbossshare/demo/apps/activemq-rar.rar --all-server-groups
+
+#Add some apps just to group demosg01
+deploy /jbossshare/demo/apps/sender.ear  --server-groups=demosg01
+deploy /jbossshare/demo/apps/reader.ear  --server-groups=demosg01
+deploy /jbossshare/demo/apps/history.ear  --server-groups=demosg01
+deploy /jbossshare/demo/apps/consumer.ear  --server-groups=demosg01
+
+echo "Apps deployed"
+
+# Execute batch
+run-batch

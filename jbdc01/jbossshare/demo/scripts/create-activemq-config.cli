@@ -1,0 +1,29 @@
+# Create ActiveMQ configuration
+
+batch
+
+#Add mdb default resource addapter
+
+/profile="demo"/subsystem=ejb3:write-attribute(name=default-resource-adapter-name, value=activemq-rar.rar)
+/profile="demo"/subsystem=ejb3:write-attribute(name=default-mdb-instance-pool, value=mdb-strict-max-pool)
+
+#Add activemq resource adapter configuration
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar":add(archive="activemq-rar.rar",transaction-support="XATransaction")
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/config-properties="ServerUrl":add(value="failover:(tcp://jbamqs01.arch.redhat.dev:61616,tcp://jbamqs02.arch.redhat.dev:61616,tcp://jbamqs03.arch.redhat.dev:61616)?jms.rmIdFromConnectionId=true&maxReconnectAttempts=0")
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/config-properties="UserName":add(value="admin")
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/config-properties="Password":add(value="password.01")
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/connection-definitions="ConnectionFactory":add(class-name="org.apache.activemq.ra.ActiveMQManagedConnectionFactory",enabled="true",jndi-name="java:/ConnectionFactory",max-pool-size="20",min-pool-size="1",pool-prefill="false",recovery-password="defaultPassword",recovery-username="defaultUser",same-rm-override="false")
+
+#Create queues/topic
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/admin-objects="HELLOWORLDMDBQueue":add(class-name="org.apache.activemq.command.ActiveMQQueue",jndi-name="java:/queue/HELLOWORLDMDBQueue",use-java-context="true")
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/admin-objects="HELLOWORLDMDBQueue"/config-properties="PhysicalName":add(value="HELLOWORLDMDBQueue")
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/admin-objects="HELLOWORLDMDBTopic":add(class-name="org.apache.activemq.command.ActiveMQTopic",jndi-name="java:/topic/HELLOWORLDMDBTopic",use-java-context="true")
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/admin-objects="HELLOWORLDMDBTopic"/config-properties="PhysicalName":add(value="HELLOWORLDMDBTopic")
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/admin-objects="DemoQueue":add(class-name="org.apache.activemq.command.ActiveMQQueue",jndi-name="java:/queue/DemoQueue",use-java-context="true")
+/profile="demo"/subsystem="resource-adapters"/resource-adapter="activemq-rar.rar"/admin-objects="DemoQueue"/config-properties="PhysicalName":add(value="DemoQueue")
+
+
+echo "ActiveMQ configuration and demo queues added"
+
+# Execute batch
+run-batch
