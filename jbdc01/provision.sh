@@ -41,8 +41,8 @@ $JBOSS_HOME/bin/jboss-cli.sh --connect controller=$DOMAIN_CONTROLLER_HOST:9999 -
 # create demo system properties
 $JBOSS_HOME/bin/jboss-cli.sh --connect controller=$DOMAIN_CONTROLLER_HOST:9999 --user=$USER --password=$PASSWORD --file=$JBOSSSHARE_HOME/demo/scripts/create-sytem-properties.cli
 
-#deploy apps
-$JBOSS_HOME/bin/jboss-cli.sh --connect controller=$DOMAIN_CONTROLLER_HOST:9999 --user=$USER --password=$PASSWORD --file=$JBOSSSHARE_HOME/demo/scripts/deploy-apps.cli
+#deploy apps (uncomment and place demo apps under ./jbdc01/jbossshare/demo/apps)
+#$JBOSS_HOME/bin/jboss-cli.sh --connect controller=$DOMAIN_CONTROLLER_HOST:9999 --user=$USER --password=$PASSWORD --file=$JBOSSSHARE_HOME/demo/scripts/deploy-apps.cli
 
 #create activemq configuration
 $JBOSS_HOME/bin/jboss-cli.sh --connect controller=$DOMAIN_CONTROLLER_HOST:9999 --user=$USER --password=$PASSWORD --file=$JBOSSSHARE_HOME/demo/scripts/create-activemq-config.cli
