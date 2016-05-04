@@ -10,23 +10,23 @@ Landrush plugin => https://github.com/vagrant-landrush/landrush
 
 **Linux users:** follow next steps in order to make landrush work:
 
-1. Add following to /etc/dnsmasq.conf
+First, try: http://lameter.rssing.com/browser.php?indx=1151212&item=14728
 
-  listen-address=127.0.0.1
+Fedora:
 
-2. Create /etc/dnsmasq.d/vagrant-landrush file with following content
+1. In /etc/NetworkManager/NetworkManager.conf set dns=dnsmasq under [main] section:
+
+  [main]
+  plugins=ifcfg-rh,ibft
+  dns=dnsmasq
+
+2. Create file /etc/NetworkManager/dnsmasq.d/vagrant-landrush.conf with following content:
 
   server=/.arch.redhat.dev/127.0.0.1#10053
 
-3. Restart dnsmasq service and check status (Should be active)
+3. Restart NetworkManager 
 
-  sudo systemctl start dnsmasq.service 
-
-  sudo systemctl status dnsmasq.service
-
-4. Include the following at first place in /etc/resolv.conf
-
-  nameserver 127.0.0.1
+  systemctl restart NetworkManager
 
 ###Demo apps
 
