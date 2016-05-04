@@ -15,7 +15,7 @@ target/
 # Package Files #
 # *.jar
 *.war
-*.ear
+#*.ear
 *.db
 
 ######################
@@ -79,6 +79,11 @@ local.properties
 
 # PDT-specific
 .buildpath
+
+######################
+# Vagrant
+######################
+.vagrant
 
 ######################
 # Jboss
