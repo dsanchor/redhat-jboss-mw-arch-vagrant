@@ -24,7 +24,7 @@ Landrush plugin => https://github.com/vagrant-landrush/landrush
 
   sudo systemctl status dnsmasq.service
 
-4. Include the following at first place in /etc/resolve.conf
+4. Include the following at first place in /etc/resolv.conf
 
   nameserver 127.0.0.1
 
