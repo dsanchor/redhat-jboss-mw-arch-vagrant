@@ -82,6 +82,44 @@ Vagrant.configure(2) do |config|
   ###                         Virtual Machines                      ###
   #####################################################################
 
+  ## MySQL 01
+  config.vm.define "mysql01", autostart: false do |mysql01|
+    mysql01.vm.box = "mysql57base"
+
+    ### MV System Settings
+    mysql01.vm.provider "virtualbox" do |vb|
+      # Customize the amount of memory on the VM:
+      vb.memory = "768"
+    end
+
+    ### Networking
+    mysql01.vm.hostname = "mysql01.arch.redhat.dev"
+    # Enable Landrush dns plugin
+    mysql01.landrush.enabled = true
+    mysql01.landrush.tld = 'arch.redhat.dev'
+    # Enable host-manager plugin 
+    mysql01.hostmanager.enabled = true
+    mysql01.hostmanager.manage_host = false
+    mysql01.hostmanager.manage_guest = true
+    mysql01.hostmanager.ip_resolver = proc do |vm, resolving_vm|
+      if vm.id
+        `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
+      end
+    end
+
+    ### Synced folders
+    mysql01.vm.synced_folder "./mysql01/", "/vagrant", id: "vagrant-root",
+      owner: "vagrant",
+      group: "vagrant",
+      mount_options: ["dmode=777,fmode=664"]
+
+    ### Provisioning
+    mysql01.vm.provision "shell",
+      inline: "sudo systemctl start mysqld.service",
+      run: "always"
+
+  end
+
   ## JBoss EAP Domain Controller 01
   config.vm.define "jbdc01" do |jbdc01|
     jbdc01.vm.box = "eap6base"
@@ -117,6 +155,11 @@ Vagrant.configure(2) do |config|
       group: "jboss",
       mount_options: ["dmode=775,fmode=664"]
 
+    jbdc01.vm.synced_folder "./deployments", "/deployments", id: "apps-deployment",
+      owner: "jboss",
+      group: "jboss",
+      mount_options: ["dmode=775,fmode=664"]
+
     ### Provisioning
     jbdc01.ssh.username = "jboss"
     
@@ -128,9 +171,6 @@ Vagrant.configure(2) do |config|
 
     jbdc01.vm.provision "file", source: "./jbdc01/data/domain/host-master.xml", 
       destination: "/etc/jbossas/domain/host.xml"
-
-    jbdc01.vm.provision "file", source: "./jbdc01/data/jbossas.conf", 
-      destination: "/etc/jbossas/jbossas.conf"
 
     jbdc01.vm.provision "shell",
       inline: "sudo service jbossas-domain start",
@@ -181,199 +221,7 @@ Vagrant.configure(2) do |config|
     jbdc02.vm.provision "file", source: "./jbdc02/data/domain/host-slave.xml", 
       destination: "/etc/jbossas/domain/host.xml"
 
-    jbdc02.vm.provision "file", source: "./jbdc02/data/jbossas.conf", 
-      destination: "/etc/jbossas/jbossas.conf"
-
     jbdc02.vm.provision "shell",
-      inline: "sudo service jbossas-domain start",
-      run: "always"
-
-  end
-
-
-  ## JBoss EAP Host Controller 01
-  config.vm.define "jbhc01", autostart: true do |jbhc01|
-    jbhc01.vm.box = "eap6base"
-
-    ### MV System Settings
-    jbhc01.vm.provider "virtualbox" do |vb|
-      # Customize the amount of memory on the VM:
-      vb.memory = "1024"
-    end
-
-    ### Networking
-    jbhc01.vm.hostname = "jbhc01.arch.redhat.dev"
-    # Enable Landrush dns plugin
-    jbhc01.landrush.enabled = true
-    jbhc01.landrush.tld = 'arch.redhat.dev'
-    # Enable host-manager plugin 
-    jbhc01.hostmanager.enabled = true
-    jbhc01.hostmanager.manage_host = false
-    jbhc01.hostmanager.manage_guest = true
-    jbhc01.hostmanager.ip_resolver = proc do |vm, resolving_vm|
-      if vm.id
-        `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
-      end
-    end
-
-    ### Synced folders
-    jbhc01.vm.synced_folder "./jbhc01/", "/vagrant", id: "vagrant-root",
-      owner: "vagrant",
-      group: "vagrant",
-      mount_options: ["dmode=777,fmode=664"]
-
-    ### Provisioning
-    jbhc01.ssh.username = "jboss"
-
-    jbhc01.vm.provision "file", source: "./jbhc01/data/domain/host-controller.xml", 
-      destination: "/etc/jbossas/domain/host.xml"
-
-    jbhc01.vm.provision "file", source: "./jbhc01/data/jbossas.conf", 
-      destination: "/etc/jbossas/jbossas.conf"
-
-    jbhc01.vm.provision "shell",
-      inline: "sudo service jbossas-domain start",
-      run: "always"
-
-  end
-
-
-
-  ## JBoss EAP Host Controller 02
-  config.vm.define "jbhc02", autostart: false do |jbhc02|
-    jbhc02.vm.box = "eap6base"
-
-    ### MV System Settings
-    jbhc02.vm.provider "virtualbox" do |vb|
-      # Customize the amount of memory on the VM:
-      vb.memory = "1024"
-    end
-
-    ### Networking
-    jbhc02.vm.hostname = "jbhc02.arch.redhat.dev"
-    # Enable Landrush dns plugin
-    jbhc02.landrush.enabled = true
-    jbhc02.landrush.tld = 'arch.redhat.dev'
-    # Enable host-manager plugin 
-    jbhc02.hostmanager.enabled = true
-    jbhc02.hostmanager.manage_host = false
-    jbhc02.hostmanager.manage_guest = true
-    jbhc02.hostmanager.ip_resolver = proc do |vm, resolving_vm|
-      if vm.id
-        `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
-      end
-    end
-
-    ### Synced folders
-    jbhc02.vm.synced_folder "./jbhc02/", "/vagrant", id: "vagrant-root",
-      owner: "vagrant",
-      group: "vagrant",
-      mount_options: ["dmode=777,fmode=664"]
-
-    ### Provisioning
-    jbhc02.ssh.username = "jboss"
-
-    jbhc02.vm.provision "file", source: "./jbhc02/data/domain/host-controller.xml", 
-      destination: "/etc/jbossas/domain/host.xml"
-
-    jbhc02.vm.provision "file", source: "./jbhc02/data/jbossas.conf", 
-      destination: "/etc/jbossas/jbossas.conf"
-
-    jbhc02.vm.provision "shell",
-      inline: "sudo service jbossas-domain start",
-      run: "always"
-
-  end
-
-
-  ## JBoss EAP Host Controller 03
-  config.vm.define "jbhc03", autostart: false do |jbhc03|
-    jbhc03.vm.box = "eap6base"
-
-    ### MV System Settings
-    jbhc03.vm.provider "virtualbox" do |vb|
-      # Customize the amount of memory on the VM:
-      vb.memory = "1024"
-    end
-
-    ### Networking
-    jbhc03.vm.hostname = "jbhc03.arch.redhat.dev"
-    # Enable Landrush dns plugin
-    jbhc03.landrush.enabled = true
-    jbhc03.landrush.tld = 'arch.redhat.dev'
-    # Enable host-manager plugin 
-    jbhc03.hostmanager.enabled = true
-    jbhc03.hostmanager.manage_host = false
-    jbhc03.hostmanager.manage_guest = true
-    jbhc03.hostmanager.ip_resolver = proc do |vm, resolving_vm|
-      if vm.id
-        `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
-      end
-    end
-
-    ### Synced folders
-    jbhc03.vm.synced_folder "./jbhc03/", "/vagrant", id: "vagrant-root",
-      owner: "vagrant",
-      group: "vagrant",
-      mount_options: ["dmode=777,fmode=664"]
-
-    ### Provisioning
-    jbhc03.ssh.username = "jboss"
-
-    jbhc03.vm.provision "file", source: "./jbhc03/data/domain/host-controller.xml", 
-      destination: "/etc/jbossas/domain/host.xml"
-
-    jbhc03.vm.provision "file", source: "./jbhc03/data/jbossas.conf", 
-      destination: "/etc/jbossas/jbossas.conf"
-
-    jbhc03.vm.provision "shell",
-      inline: "sudo service jbossas-domain start",
-      run: "always"
-
-  end
-
-
-  ## JBoss EAP Host Controller 04
-  config.vm.define "jbhc04", autostart: false do |jbhc04|
-    jbhc04.vm.box = "eap6base"
-
-    ### MV System Settings
-    jbhc04.vm.provider "virtualbox" do |vb|
-      # Customize the amount of memory on the VM:
-      vb.memory = "1024"
-    end
-
-    ### Networking
-    jbhc04.vm.hostname = "jbhc04.arch.redhat.dev"
-    # Enable Landrush dns plugin
-    jbhc04.landrush.enabled = true
-    jbhc04.landrush.tld = 'arch.redhat.dev'
-    # Enable host-manager plugin 
-    jbhc04.hostmanager.enabled = true
-    jbhc04.hostmanager.manage_host = false
-    jbhc04.hostmanager.manage_guest = true
-    jbhc04.hostmanager.ip_resolver = proc do |vm, resolving_vm|
-      if vm.id
-        `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
-      end
-    end
-
-    ### Synced folders
-    jbhc04.vm.synced_folder "./jbhc04/", "/vagrant", id: "vagrant-root",
-      owner: "vagrant",
-      group: "vagrant",
-      mount_options: ["dmode=777,fmode=664"]
-
-    ### Provisioning
-    jbhc04.ssh.username = "jboss"
-
-    jbhc04.vm.provision "file", source: "./jbhc04/data/domain/host-controller.xml", 
-      destination: "/etc/jbossas/domain/host.xml"
-
-    jbhc04.vm.provision "file", source: "./jbhc04/data/jbossas.conf", 
-      destination: "/etc/jbossas/jbossas.conf"
-
-    jbhc04.vm.provision "shell",
       inline: "sudo service jbossas-domain start",
       run: "always"
 
@@ -772,40 +620,178 @@ Vagrant.configure(2) do |config|
   end
 
 
-  ## MySQL 01
-  config.vm.define "mysql01", autostart: false do |mysql01|
-    mysql01.vm.box = "mysql57base"
+  ## JBoss EAP Host Controller 01
+  config.vm.define "jbhc01", autostart: true do |jbhc01|
+    jbhc01.vm.box = "eap6base"
 
     ### MV System Settings
-    mysql01.vm.provider "virtualbox" do |vb|
+    jbhc01.vm.provider "virtualbox" do |vb|
       # Customize the amount of memory on the VM:
-      vb.memory = "768"
+      vb.memory = "1024"
     end
 
     ### Networking
-    mysql01.vm.hostname = "mysql01.arch.redhat.dev"
+    jbhc01.vm.hostname = "jbhc01.arch.redhat.dev"
     # Enable Landrush dns plugin
-    mysql01.landrush.enabled = true
-    mysql01.landrush.tld = 'arch.redhat.dev'
+    jbhc01.landrush.enabled = true
+    jbhc01.landrush.tld = 'arch.redhat.dev'
     # Enable host-manager plugin 
-    mysql01.hostmanager.enabled = true
-    mysql01.hostmanager.manage_host = false
-    mysql01.hostmanager.manage_guest = true
-    mysql01.hostmanager.ip_resolver = proc do |vm, resolving_vm|
+    jbhc01.hostmanager.enabled = true
+    jbhc01.hostmanager.manage_host = false
+    jbhc01.hostmanager.manage_guest = true
+    jbhc01.hostmanager.ip_resolver = proc do |vm, resolving_vm|
       if vm.id
         `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
       end
     end
 
     ### Synced folders
-    mysql01.vm.synced_folder "./mysql01/", "/vagrant", id: "vagrant-root",
+    jbhc01.vm.synced_folder "./jbhc01/", "/vagrant", id: "vagrant-root",
       owner: "vagrant",
       group: "vagrant",
       mount_options: ["dmode=777,fmode=664"]
 
     ### Provisioning
-    mysql01.vm.provision "shell",
-      inline: "sudo systemctl start mysqld.service",
+    jbhc01.ssh.username = "jboss"
+
+    jbhc01.vm.provision "file", source: "./jbhc01/data/domain/host-controller.xml", 
+      destination: "/etc/jbossas/domain/host.xml"
+
+    jbhc01.vm.provision "shell",
+      inline: "sudo service jbossas-domain start",
+      run: "always"
+
+  end
+
+
+
+  ## JBoss EAP Host Controller 02
+  config.vm.define "jbhc02", autostart: false do |jbhc02|
+    jbhc02.vm.box = "eap6base"
+
+    ### MV System Settings
+    jbhc02.vm.provider "virtualbox" do |vb|
+      # Customize the amount of memory on the VM:
+      vb.memory = "1024"
+    end
+
+    ### Networking
+    jbhc02.vm.hostname = "jbhc02.arch.redhat.dev"
+    # Enable Landrush dns plugin
+    jbhc02.landrush.enabled = true
+    jbhc02.landrush.tld = 'arch.redhat.dev'
+    # Enable host-manager plugin 
+    jbhc02.hostmanager.enabled = true
+    jbhc02.hostmanager.manage_host = false
+    jbhc02.hostmanager.manage_guest = true
+    jbhc02.hostmanager.ip_resolver = proc do |vm, resolving_vm|
+      if vm.id
+        `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
+      end
+    end
+
+    ### Synced folders
+    jbhc02.vm.synced_folder "./jbhc02/", "/vagrant", id: "vagrant-root",
+      owner: "vagrant",
+      group: "vagrant",
+      mount_options: ["dmode=777,fmode=664"]
+
+    ### Provisioning
+    jbhc02.ssh.username = "jboss"
+
+    jbhc02.vm.provision "file", source: "./jbhc02/data/domain/host-controller.xml", 
+      destination: "/etc/jbossas/domain/host.xml"
+
+    jbhc02.vm.provision "shell",
+      inline: "sudo service jbossas-domain start",
+      run: "always"
+
+  end
+
+
+  ## JBoss EAP Host Controller 03
+  config.vm.define "jbhc03", autostart: false do |jbhc03|
+    jbhc03.vm.box = "eap6base"
+
+    ### MV System Settings
+    jbhc03.vm.provider "virtualbox" do |vb|
+      # Customize the amount of memory on the VM:
+      vb.memory = "1024"
+    end
+
+    ### Networking
+    jbhc03.vm.hostname = "jbhc03.arch.redhat.dev"
+    # Enable Landrush dns plugin
+    jbhc03.landrush.enabled = true
+    jbhc03.landrush.tld = 'arch.redhat.dev'
+    # Enable host-manager plugin 
+    jbhc03.hostmanager.enabled = true
+    jbhc03.hostmanager.manage_host = false
+    jbhc03.hostmanager.manage_guest = true
+    jbhc03.hostmanager.ip_resolver = proc do |vm, resolving_vm|
+      if vm.id
+        `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
+      end
+    end
+
+    ### Synced folders
+    jbhc03.vm.synced_folder "./jbhc03/", "/vagrant", id: "vagrant-root",
+      owner: "vagrant",
+      group: "vagrant",
+      mount_options: ["dmode=777,fmode=664"]
+
+    ### Provisioning
+    jbhc03.ssh.username = "jboss"
+
+    jbhc03.vm.provision "file", source: "./jbhc03/data/domain/host-controller.xml", 
+      destination: "/etc/jbossas/domain/host.xml"
+
+    jbhc03.vm.provision "shell",
+      inline: "sudo service jbossas-domain start",
+      run: "always"
+
+  end
+
+
+  ## JBoss EAP Host Controller 04
+  config.vm.define "jbhc04", autostart: false do |jbhc04|
+    jbhc04.vm.box = "eap6base"
+
+    ### MV System Settings
+    jbhc04.vm.provider "virtualbox" do |vb|
+      # Customize the amount of memory on the VM:
+      vb.memory = "1024"
+    end
+
+    ### Networking
+    jbhc04.vm.hostname = "jbhc04.arch.redhat.dev"
+    # Enable Landrush dns plugin
+    jbhc04.landrush.enabled = true
+    jbhc04.landrush.tld = 'arch.redhat.dev'
+    # Enable host-manager plugin 
+    jbhc04.hostmanager.enabled = true
+    jbhc04.hostmanager.manage_host = false
+    jbhc04.hostmanager.manage_guest = true
+    jbhc04.hostmanager.ip_resolver = proc do |vm, resolving_vm|
+      if vm.id
+        `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
+      end
+    end
+
+    ### Synced folders
+    jbhc04.vm.synced_folder "./jbhc04/", "/vagrant", id: "vagrant-root",
+      owner: "vagrant",
+      group: "vagrant",
+      mount_options: ["dmode=777,fmode=664"]
+
+    ### Provisioning
+    jbhc04.ssh.username = "jboss"
+
+    jbhc04.vm.provision "file", source: "./jbhc04/data/domain/host-controller.xml", 
+      destination: "/etc/jbossas/domain/host.xml"
+
+    jbhc04.vm.provision "shell",
+      inline: "sudo service jbossas-domain start",
       run: "always"
 
   end
