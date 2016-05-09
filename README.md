@@ -27,14 +27,3 @@ Fedora:
 3. Restart NetworkManager 
 
   systemctl restart NetworkManager
-
-###Demo apps
-
-Copy binaries of the demo applications under ./jbdc01/jbossshare/demo/apps
-
-Uncomment line #$JBOSS_HOME/bin/jboss-cli.sh --connect controller=$DOMAIN_CONTROLLER_HOST:9999 --user=$USER --password=$PASSWORD --file=$JBOSSSHARE_HOME/demo/scripts/deploy-apps.cli in ./jbdc01/provision.sh 
-
-
-
-
-
